@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, Calendar, ChevronRight, Star, Award, Globe, Users, TrendingUp } from 'lucide-react';
+import { ArrowRight, BookOpen, Calendar, ChevronRight, Star, Award, Globe, Users, TrendingUp, CheckCircle, ChevronLeft } from 'lucide-react';
 import { SCHOOL_STATS, BOOKS, NEWS } from '../constants';
 
 const Home: React.FC = () => {
@@ -8,9 +8,92 @@ const Home: React.FC = () => {
   const topBooks = BOOKS.slice(0, 6);
   const latestNews = NEWS.slice(0, 3);
 
+  // --- SLIDER BANNER FUNCTIONALITY ---
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Daftar Gambar Banner (3 Image)
+  const bannerImages = [
+    "https://res.cloudinary.com/devdvgvsu/image/upload/v1769052414/banner1_co6fhh.png", // Banner 1 (User Provided)
+    "https://res.cloudinary.com/devdvgvsu/image/upload/v1769052411/banner2_koh3y9.png", // Ilustrasi Sekolah 1
+    "https://res.cloudinary.com/devdvgvsu/image/upload/v1769052409/banner3_axvqhl.png"  // Ilustrasi Siswa 2
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === bannerImages.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? bannerImages.length - 1 : prev - 1));
+  };
+
+  // Auto-slide effect (5 detik)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  // -----------------------------------
+
   return (
-    <div className="w-full bg-surface pt-24 pb-24">
-      <div className="container mx-auto px-6 space-y-24">
+    <div className="w-full bg-surface">
+      
+      {/* Spacer agar konten tidak tertutup Navbar Fixed */}
+      <div className="h-24 bg-white"></div>
+
+      {/* --- BANNER SLIDER SECTION --- */}
+      <section className="relative w-full h-[200px] sm:h-[300px] md:h-[450px] lg:h-[600px] overflow-hidden group bg-gray-200">
+        
+        {/* Slides Wrapper */}
+        <div 
+          className="w-full h-full flex transition-transform duration-700 ease-in-out"
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
+          {bannerImages.map((img, index) => (
+            <div key={index} className="w-full h-full flex-shrink-0 relative">
+              <img 
+                src={img} 
+                alt={`Banner Sekolah ${index + 1}`} 
+                className="w-full h-full object-cover object-center"
+              />
+              {/* Optional: Overlay gradient tipis agar navbar tetap terlihat jelas jika transparan */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent pointer-events-none"></div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tombol Panah Kiri */}
+        <button 
+          onClick={prevSlide}
+          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/80 text-white hover:text-gray-900 p-2 md:p-3 rounded-full backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 z-10"
+        >
+          <ChevronLeft size={24} />
+        </button>
+
+        {/* Tombol Panah Kanan */}
+        <button 
+          onClick={nextSlide}
+          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/80 text-white hover:text-gray-900 p-2 md:p-3 rounded-full backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 z-10"
+        >
+          <ChevronRight size={24} />
+        </button>
+
+        {/* Indikator Dots */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {bannerImages.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                currentSlide === idx ? 'bg-primary w-8' : 'bg-white/60 w-2 hover:bg-white'
+              }`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* --- KONTEN UTAMA --- */}
+      <div className="container mx-auto px-6 space-y-24 py-16">
         
         {/* Redesigned Bento Hero Section - Solid & Institutional */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -122,7 +205,10 @@ const Home: React.FC = () => {
                         <div className="flex justify-between items-start">
                              <span className={`font-sans text-xs font-bold uppercase tracking-wider ${i === 0 ? 'text-institutional/80' : i === 3 ? 'text-white/80' : 'text-gray-400'}`}>{stat.label}</span>
                         </div>
-                        <span className={`font-serif text-4xl md:text-5xl font-bold ${i === 0 ? 'text-institutional' : i === 3 ? 'text-white' : 'text-gray-900'}`}>{stat.value}</span>
+                        {/* Conditional font size: If the label is 'Status', use smaller font */}
+                        <span className={`font-serif font-bold ${stat.label === 'Status' ? 'text-2xl md:text-3xl' : 'text-4xl md:text-5xl'} ${i === 0 ? 'text-institutional' : i === 3 ? 'text-white' : 'text-gray-900'}`}>
+                            {stat.value}
+                        </span>
                     </div>
                 ))}
             </div>
@@ -140,29 +226,55 @@ const Home: React.FC = () => {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                {topBooks.map((book) => (
-                    <Link key={book.id} to="/buku" className="group bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
-                        <div className="aspect-[2/3] overflow-hidden relative bg-gray-100">
+            {/* Updated Grid: 3 cols on Large, 2 cols on Tablet, 1 col on Mobile */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {topBooks.map((book, index) => (
+                    <Link 
+                        key={book.id} 
+                        to="/buku" 
+                        // Hide 5th and 6th items (index 4 and 5) on Mobile and Tablet (< lg)
+                        // This ensures: Mobile = 4 items, Tablet = 4 items, Desktop = 6 items
+                        className={`bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex h-44 group cursor-pointer hover:-translate-y-1 ${index > 3 ? 'hidden lg:flex' : 'flex'}`}
+                    >
+                        {/* Image Section - Left Side */}
+                        <div className="w-32 h-full relative flex-shrink-0 bg-gray-100">
                             <img 
                                 src={book.coverImage} 
                                 alt={book.title} 
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            {/* Hover Glow Effect via Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            
-                            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide text-gray-800 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
+                             {/* Category Label */}
+                            <span className="absolute top-2 left-2 px-2 py-1 bg-white/95 backdrop-blur rounded-md text-[9px] font-bold uppercase tracking-wider text-gray-800 shadow-sm">
                                 {book.category}
-                            </div>
+                            </span>
                         </div>
-                        <div className="p-5 flex flex-col flex-grow">
-                            <h4 className="font-serif text-sm font-bold text-gray-900 line-clamp-2 leading-snug mb-2 group-hover:text-primary transition-colors">
-                                {book.title}
-                            </h4>
-                            <p className="text-xs text-gray-500 truncate mt-auto">
-                                {book.author}
-                            </p>
+
+                        {/* Content Section - Right Side */}
+                        <div className="p-4 flex flex-col flex-grow min-w-0 justify-between">
+                            <div>
+                                <div className="flex justify-between items-start mb-1">
+                                    <h4 className="font-serif font-bold text-gray-900 leading-tight line-clamp-2 text-base group-hover:text-primary transition-colors">
+                                        {book.title}
+                                    </h4>
+                                    {/* Status Badge Top Right */}
+                                    {book.status === 'Tersedia' ? (
+                                        <span className="flex-shrink-0 text-[9px] font-bold text-white bg-primary px-1.5 py-0.5 rounded-full ml-1">Ada</span>
+                                    ) : (
+                                        <span className="flex-shrink-0 text-[9px] font-bold text-white bg-secondary px-1.5 py-0.5 rounded-full ml-1">Pinjam</span>
+                                    )}
+                                </div>
+                                <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wide">SMA Al-Hikmah</p>
+                                
+                                <div className="space-y-0.5 text-xs text-gray-500">
+                                    <p className="truncate text-[11px]"><span className="font-semibold text-gray-700">Penulis:</span> {book.author}</p>
+                                </div>
+                            </div>
+
+                            <div className="pt-2 border-t border-gray-100 flex items-center justify-between mt-1">
+                                <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+                                    <CheckCircle size={10} /> Versi Digital
+                                </span>
+                            </div>
                         </div>
                     </Link>
                 ))}

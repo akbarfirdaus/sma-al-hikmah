@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Search, X, CheckCircle, Clock, BookOpen, MapPin, Star } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, X, CheckCircle, BookOpen, MapPin, ChevronDown } from 'lucide-react';
 import { BOOKS, BOOK_CATEGORIES, BOOK_GRADES } from '../constants';
 import { Book } from '../types';
 
@@ -8,6 +8,40 @@ const Buku: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [selectedGrade, setSelectedGrade] = useState('Semua');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+
+  // --- PAGINATION LOGIC ---
+  // Menghitung berapa item yang setara dengan 3 baris berdasarkan lebar layar
+  const getItemsPerBatch = () => {
+    if (typeof window !== 'undefined') {
+        if (window.innerWidth >= 1024) return 9; // Desktop (3 cols x 3 rows)
+        if (window.innerWidth >= 768) return 6;  // Tablet (2 cols x 3 rows)
+        return 3;                                // Mobile (1 col x 3 rows)
+    }
+    return 9; // Default fallback
+  };
+
+  const [visibleCount, setVisibleCount] = useState(getItemsPerBatch());
+
+  // Reset pagination saat filter berubah
+  useEffect(() => {
+    setVisibleCount(getItemsPerBatch());
+  }, [searchQuery, selectedCategory, selectedGrade]);
+
+  // Listener resize window agar batch size konsisten jika layar diubah ukurannya (opsional, tapi bagus UX-nya)
+  useEffect(() => {
+    const handleResize = () => {
+       // Kita tidak mereset visibleCount secara total agar user tidak kehilangan posisi scroll,
+       // tapi kita pastikan minimal sesuai standar layar saat ini.
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleLoadMore = () => {
+    const batchSize = getItemsPerBatch();
+    setVisibleCount((prev) => prev + batchSize);
+  };
+  // -------------------------
 
   const filteredBooks = useMemo(() => {
     return BOOKS.filter((book) => {
@@ -22,6 +56,10 @@ const Buku: React.FC = () => {
       return matchesSearch && matchesCategory && matchesGrade;
     });
   }, [searchQuery, selectedCategory, selectedGrade]);
+
+  // Data yang benar-benar dirender (sudah dipotong)
+  const displayedBooks = filteredBooks.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredBooks.length;
 
   return (
     <div className="min-h-screen pt-32 pb-24 bg-surface">
@@ -82,55 +120,77 @@ const Buku: React.FC = () => {
             </div>
         </div>
 
-        {/* Results Grid Bento */}
+        {/* Results Grid */}
         {filteredBooks.length > 0 ? (
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filteredBooks.map((book) => (
-                    <div 
-                        key={book.id} 
-                        onClick={() => setSelectedBook(book)}
-                        className="bg-white p-4 rounded-[2.5rem] border border-gray-100 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 flex flex-col cursor-pointer group hover:-translate-y-2"
-                    >
-                        {/* Image */}
-                        <div className="relative aspect-[2/3] overflow-hidden bg-gray-100 rounded-[2rem] mb-4 shadow-inner">
-                            <img 
-                                src={book.coverImage} 
-                                alt={book.title} 
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                            {/* Status Badge */}
-                            <div className="absolute top-3 right-3">
-                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-sm ${
-                                    book.status === 'Tersedia' 
-                                    ? 'bg-white text-primary' 
-                                    : 'bg-white text-secondary'
-                                }`}>
-                                    {book.status}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Content */}
-                        <div className="px-2 flex flex-col flex-grow">
-                            <div className="mb-2">
-                                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+             <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {displayedBooks.map((book) => (
+                        <div 
+                            key={book.id} 
+                            onClick={() => setSelectedBook(book)}
+                            className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex h-44 group cursor-pointer hover:-translate-y-1"
+                        >
+                            {/* Image Section - Left Side */}
+                            <div className="w-32 h-full relative flex-shrink-0 bg-gray-100">
+                                <img 
+                                    src={book.coverImage} 
+                                    alt={book.title} 
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                                {/* Category Label */}
+                                <span className="absolute top-2 left-2 px-2 py-1 bg-white/95 backdrop-blur rounded-md text-[9px] font-bold uppercase tracking-wider text-gray-800 shadow-sm">
                                     {book.category}
                                 </span>
                             </div>
-                            <h3 className="font-serif text-lg text-gray-900 leading-snug mb-1 group-hover:text-primary transition-colors line-clamp-2">
-                                {book.title}
-                            </h3>
-                            <p className="font-sans text-sm text-gray-500 mb-4">{book.author}</p>
-                            
-                            <div className="mt-auto pt-4 border-t border-gray-50">
-                                <span className="w-full block py-2 rounded-xl text-center text-xs font-bold uppercase tracking-wide bg-gray-50 text-gray-400 group-hover:bg-primary group-hover:text-white transition-colors">
-                                    Lihat Detail
-                                </span>
+
+                            {/* Content Section - Right Side */}
+                            <div className="p-4 flex flex-col flex-grow min-w-0 justify-between">
+                                <div>
+                                    <div className="flex justify-between items-start mb-1">
+                                        <h3 className="font-serif font-bold text-gray-900 leading-tight line-clamp-2 text-base group-hover:text-primary transition-colors">
+                                            {book.title}
+                                        </h3>
+                                        {/* Status Badge Top Right */}
+                                        {book.status === 'Tersedia' ? (
+                                            <span className="flex-shrink-0 text-[9px] font-bold text-white bg-primary px-1.5 py-0.5 rounded-full ml-1">Ada</span>
+                                        ) : (
+                                            <span className="flex-shrink-0 text-[9px] font-bold text-white bg-secondary px-1.5 py-0.5 rounded-full ml-1">Pinjam</span>
+                                        )}
+                                    </div>
+                                    <p className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wide">SMA Al-Hikmah</p>
+                                    
+                                    <div className="space-y-0.5 text-xs text-gray-500">
+                                        <p className="truncate text-[11px]"><span className="font-semibold text-gray-700">Penulis:</span> {book.author}</p>
+                                        <p className="truncate font-mono text-[10px] text-gray-400 mt-1">{book.isbn}</p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-2 border-t border-gray-100 flex items-center justify-between mt-1">
+                                    <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+                                        <CheckCircle size={10} /> Versi Digital
+                                    </span>
+                                </div>
                             </div>
                         </div>
+                    ))}
+                </div>
+
+                {/* LOAD MORE BUTTON */}
+                {hasMore && (
+                    <div className="mt-12 text-center">
+                        <button 
+                            onClick={handleLoadMore}
+                            className="inline-flex items-center gap-2 px-8 py-4 bg-white border border-gray-200 shadow-sm rounded-full text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-primary hover:border-primary/30 transition-all duration-300 group"
+                        >
+                            Lihat Lainnya
+                            <ChevronDown size={16} className="transition-transform group-hover:translate-y-1" />
+                        </button>
+                        <p className="text-xs text-gray-400 mt-3">
+                            Menampilkan {displayedBooks.length} dari {filteredBooks.length} buku
+                        </p>
                     </div>
-                ))}
-            </div>
+                )}
+             </>
         ) : (
             <div className="text-center py-24 bg-white rounded-[2.5rem] border border-gray-100">
                 <p className="font-serif text-2xl text-gray-400">Tidak ada buku yang ditemukan.</p>

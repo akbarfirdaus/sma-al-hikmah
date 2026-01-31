@@ -4,7 +4,7 @@ export const SCHOOL_STATS: Stat[] = [
   { label: 'Tahun Berdiri', value: '2016' },
   { label: 'Akreditasi', value: 'A' },
   { label: 'Konsep', value: '3in1' }, // SMA, SMK, MA
-  { label: 'Ekstrakurikuler', value: '18+' },
+  { label: 'Status', value: 'Swasta' },
 ];
 
 export const ORG_STRUCTURE = {
@@ -76,6 +76,84 @@ export const TEACHERS: Teacher[] = [
 ];
 
 export const BOOKS: Book[] = [
+  {
+    id: 'new-1',
+    title: 'Cara Instan Jago Hacking',
+    author: 'Arya Dipanegara',
+    isbn: '978-602-001-123-1',
+    category: 'Sains',
+    gradeLevel: 'Umum',
+    status: 'Tersedia',
+    summary: 'Panduan praktis memahami keamanan siber dan ethical hacking.',
+    synopsis: 'Buku ini membahas konsep dasar keamanan jaringan, teknik penetrasi sistem untuk tujuan edukasi, serta cara melindungi diri dari serangan siber. Cocok untuk pemula yang ingin terjun ke dunia keamanan informasi.',
+    shelfLocation: 'Rak T-01',
+    coverImage: 'https://placehold.co/300x450/000000/FFF?text=Hacking' // Placeholder for uploaded image 1
+  },
+  {
+    id: 'new-2',
+    title: 'EYD: Ejaan Bahasa Indonesia Yang Disempurnakan',
+    author: 'Kesuma Nagara',
+    isbn: '978-602-002-123-2',
+    category: 'Bahasa',
+    gradeLevel: 'Umum',
+    status: 'Tersedia',
+    summary: 'Pedoman lengkap EYD edisi terbaru sesuai Permendiknas.',
+    synopsis: 'Referensi wajib untuk penulisan bahasa Indonesia yang baku. Mencakup pemakaian huruf, penulisan kata, tanda baca, dan unsur serapan. Sangat berguna untuk siswa dan guru.',
+    shelfLocation: 'Rak B-02',
+    coverImage: 'https://placehold.co/300x450/FFD700/000?text=EYD' // Placeholder for uploaded image 2
+  },
+  {
+    id: 'new-3',
+    title: 'Langsung Bisa Menguasai GRAMMAR',
+    author: 'Joanna Adia',
+    isbn: '978-602-003-123-3',
+    category: 'Bahasa',
+    gradeLevel: 'Umum',
+    status: 'Dipinjam',
+    summary: 'Panduan cepat menguasai tata bahasa Inggris (Parts of Speech).',
+    synopsis: 'Membahas Noun, Pronoun, Adjective, Verb, Adverb, Preposition, Conjunction, dan Interjection dengan metode yang mudah dipahami dan langsung bisa dipraktikkan.',
+    shelfLocation: 'Rak B-03',
+    coverImage: 'https://placehold.co/300x450/FFFFFF/000?text=Grammar' // Placeholder for uploaded image 3
+  },
+  {
+    id: 'new-4',
+    title: 'Langsung Bisa Menguasai Tenses',
+    author: 'Joanna Adia',
+    isbn: '978-602-004-123-4',
+    category: 'Bahasa',
+    gradeLevel: 'Umum',
+    status: 'Tersedia',
+    summary: 'Kunci menguasai 16 Tenses bahasa Inggris dengan mudah.',
+    synopsis: 'Dilengkapi dengan Active & Passive Voice, Question Tag, Degrees of Comparison, dan Regular/Irregular Verbs. Buku ini membantu siswa memahami struktur waktu dalam bahasa Inggris.',
+    shelfLocation: 'Rak B-04',
+    coverImage: 'https://placehold.co/300x450/FFFFFF/000?text=Tenses' // Placeholder for uploaded image 4
+  },
+  {
+    id: 'new-5',
+    title: 'Peribahasa Majas Pantun',
+    author: 'Tim Redaksi Agogos',
+    isbn: '978-602-005-123-5',
+    category: 'Bahasa',
+    gradeLevel: 'Umum',
+    status: 'Tersedia',
+    summary: 'Kumpulan peribahasa, majas, dan pantun populer.',
+    synopsis: 'Buku ini merangkum kekayaan sastra lisan Indonesia yang sering digunakan di sekolah maupun kehidupan sehari-hari. Referensi tepat untuk pelajaran Bahasa Indonesia.',
+    shelfLocation: 'Rak B-05',
+    coverImage: 'https://placehold.co/300x450/1a1a1a/FFF?text=Peribahasa' // Placeholder for uploaded image 5
+  },
+  {
+    id: 'new-6',
+    title: 'Tebak-Tebakan Gokil Dosis Tinggi',
+    author: 'Kole11',
+    isbn: '978-602-006-123-6',
+    category: 'Sastra',
+    gradeLevel: 'Umum',
+    status: 'Tersedia',
+    summary: 'Kumpulan tebakan lucu untuk hiburan.',
+    synopsis: 'Buku ringan untuk melepas penat. Berisi ratusan tebak-tebakan humor yang segar dan menghibur, cocok untuk bacaan santai di waktu luang.',
+    shelfLocation: 'Rak H-01',
+    coverImage: 'https://placehold.co/300x450/ddd/000?text=Tebak+Tebakan' // Placeholder for uploaded image 6
+  },
   {
     id: '1',
     title: 'Sejarah Peradaban Islam',
